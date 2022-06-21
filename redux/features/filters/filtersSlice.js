@@ -3,20 +3,25 @@ import { createSlice } from '@reduxjs/toolkit'
 const filtersSlice = createSlice({
     name: "filters",
     initialState: {
-        filters: []
+        filters_bb: [1,2,3,4,5],
+        filters_bcs: [1,2,3,4,5]
     },
     reducers: {
-        add(state, action){
-            state.filters.push(action.payload)
+        addBB(state, { payload }){
+            state.filters_bb.push(payload)
         },
-        remove(state, payload){
-            return state.filters.filter((value) => value !== payload.payload)
-        }
+        removeBB(state, { payload }){
+            state.filters_bb = state.filters_bb.filter(item => item !== payload)
+        },
+        addBCS(state, { payload }){
+            state.filters_bcs.push(payload)
+        },
+        removeBCS(state, { payload }){
+            state.filters_bcs = state.filters_bcs.filter(item => item !== payload)
+        },
     },
 })
 
-export const { add, remove } = filtersSlice.actions
-
-export const selectFilters = (state) => state.filters
+export const { addBB, removeBB, addBCS, removeBCS } = filtersSlice.actions
 
 export default filtersSlice.reducer

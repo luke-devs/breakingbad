@@ -3,17 +3,27 @@ import { Text, Icon, HStack } from "native-base";
 import { Feather } from "@native-base/icons";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux"	
-import { add, remove } from "../redux/features/filters/filtersSlice"
+import { addBB, removeBB, addBCS, removeBCS } from "../redux/features/filters/filtersSlice"
 
-const Chip = ({ text, value, onPress}) => {
+const Chip = ({ text, value, onPress, show}) => {
     const dispatch = useDispatch();
     const { filters } = useSelector(state => state.filters)
-    const [selected, setSelected] = useState(false)
+    const [selected, setSelected] = useState(true)
     if(selected){
         return(
-            <TouchableOpacity style={styles.buttonEnabled} onPress={(value) => {
+            <TouchableOpacity style={styles.buttonEnabled} onPress={() => {
                 setSelected(false)
-                dispatch(remove(value))
+                switch (show) {
+                    case "breaking_bad":
+                        dispatch(removeBB(value))
+                        break;
+                    case "better_call_saul":
+                        dispatch(removeBCS(value))
+                        break;
+                
+                    default:
+                        break;
+                }
             }}>
                 <HStack style={{justifyContent: "center", alignItems: "center"}}>
                     <Icon as={Feather} name="check" size="20px" color={"blue.500"}></Icon>
@@ -25,7 +35,17 @@ const Chip = ({ text, value, onPress}) => {
         return(
             <TouchableOpacity style={styles.button} onPress={() => {
                 setSelected(true)
-                dispatch(add(value))
+                switch (show) {
+                    case "breaking_bad":
+                        dispatch(addBB(value))
+                        break;
+                    case "better_call_saul":
+                        dispatch(addBCS(value))
+                        break;
+                
+                    default:
+                        break;
+                }
             }}>
                 <HStack style={{justifyContent: "center", alignItems: "center"}}>
                     <Text fontWeight={"500"} fontSize={"sm"} color={"gray.400"}>{text}</Text>

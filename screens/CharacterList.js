@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback, memo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback, PureComponent } from "react";
 import { useDispatch, useSelector } from "react-redux"	
 import { StyleSheet, View, FlatList, SafeAreaView, TouchableOpacity } from "react-native";
 import { Box, Heading, HStack, ZStack, VStack, Text, Divider, Icon, Spinner, Input, Avatar, Select } from "native-base";
@@ -7,25 +7,32 @@ import { getCharacters } from "../redux/features/characters/charactersSlice";
 import { Dimensions } from "react-native";
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import Chip from "../components/Chip"
+import FlatListView from "../components/List"
 
 var width = Dimensions.get('window').width; 
 var height = Dimensions.get('window').height; 
 
 const CharacterList = ({navigation}) =>{
 
-    const filters = useSelector(state => state.filters.filters)
+    const filtersBB = useSelector(state => state.filters.filters_bb)
+    const filtersBCS = useSelector(state => state.filters.filters_bcs)
     const { characters, status } = useSelector(state => state.characters)
     const dispatch = useDispatch();
 
-    
+    const [data, setData] = useState([])
     const [filter, setFilter] = useState("")
-    const handleChange = text => setFilter(text);
+
+    const handleChange = (text) => {
+        setFilter(text);
+        const filteredData = characters.filter(item => item.name.includes(text))
+        setData(filteredData)
+    }
 
     const [trayIndex, setTrayIndex] = useState(-1)
 
     const bottomSheetRef = useRef(null);
 
-    const snapPoints = useMemo(() => ['40%'], []);
+    const snapPoints = useMemo(() => ['65%'], []);
 
     const handleSheetChanges = useCallback((index: number) => {
         console.log('handleSheetChanges', index);
@@ -44,6 +51,8 @@ const CharacterList = ({navigation}) =>{
 
     useEffect(() => {
         dispatch(getCharacters())
+        const filteredData = characters.filter(item => item.name.includes(filter))
+        setData(filteredData)
     }, [dispatch])
 
     const Character = ({...props}) => {
@@ -116,19 +125,7 @@ const CharacterList = ({navigation}) =>{
                             <Icon as={Feather} name="sliders" size="md" color={"white"} />
                         </TouchableOpacity>
                     </HStack>
-                    <FlatList
-                        fadingEdgeLength={70}
-                        showsVerticalScrollIndicator={false}
-                        data={characters}
-                        extraData={characters}
-                        renderItem={renderItem}
-                        getItemLayout={getItemLayout}
-                        keyExtractor={item => item.char_id}
-                        windowSize={10}
-                        initialNumToRender={5}
-                        maxToRenderPerBatch={8}
-                        updateCellsBatchingPeriod={100}
-                    />
+                    <FlatListView characters={data}/>
                 </Box>
                 <BottomSheet
                         ref={(ref) => (bottomSheetRef.current = ref)}
@@ -141,15 +138,36 @@ const CharacterList = ({navigation}) =>{
                     >
                         <View style={styles.contentContainer}>
                         <Heading ml={3} size={"md"} style={styles.heading} color={"gray.400"}>Filter by season</Heading>
-                            <View style={{flex: 1, flexDirection: "row", flexWrap: "wrap"}} alignItems="flex-start">
-                                <Chip text={"Season 1"} value={1}/>
-                                <Chip text={"Season 2"} value={2}/>
-                                <Chip text={"Season 3"} value={3}/>
-                                <Chip text={"Season 4"} value={4}/>
-                                <Chip text={"Season 5"} value={5}/>
-                            </View>
+                            <VStack ml={3} mb={4}>
+                                <Text fontSize={"md"} color={"gray.400"}>Breaking Bad</Text>    
+                            </VStack>
+                            <Box mb={5} style={{flexDirection: "row", flexWrap: "wrap"}} alignItems="flex-start">
+                                <Chip text={"Season 1"} value={1} show={"breaking_bad"}/>
+                                <Chip text={"Season 2"} value={2} show={"breaking_bad"}/>
+                                <Chip text={"Season 3"} value={3} show={"breaking_bad"}/>
+                                <Chip text={"Season 4"} value={4} show={"breaking_bad"}/>
+                                <Chip text={"Season 5"} value={5} show={"breaking_bad"}/>
+                            </Box>
+                            <VStack ml={3} mb={4}>
+                                <Text fontSize={"md"} color={"gray.400"}>Better Call Saul</Text>    
+                            </VStack>
+                            <Box mb={10} style={{flexDirection: "row", flexWrap: "wrap"}} alignItems="flex-start">
+                                <Chip text={"Season 1"} value={1} show={"better_call_saul"}/>
+                                <Chip text={"Season 2"} value={2} show={"better_call_saul"}/>
+                                <Chip text={"Season 3"} value={3} show={"better_call_saul"}/>
+                                <Chip text={"Season 4"} value={4} show={"better_call_saul"}/>
+                                <Chip text={"Season 5"} value={5} show={"better_call_saul"}/>
+                            </Box>
                             <TouchableOpacity style={styles.button} onPress={() => {
                                 bottomSheetRef.current.close()
+                                var arr = [];
+                                for (let index = 0; index < characters.length; index++) {
+                                    const character = characters[index];
+                                    if(filtersBB.some(r=> character.appearance.includes(r)) || filtersBCS.some(s => character.better_call_saul_appearance.includes(s))){
+                                        arr.push(character)
+                                    }
+                                }
+                                setData(arr)
                             }}>
                                 <Text fontWeight={"600"} color={"white"} fontSize={"md"}>View Results</Text>
                             </TouchableOpacity>
@@ -171,7 +189,7 @@ const styles = StyleSheet.create({
     contentContainer:{
         paddingHorizontal: 10,
         marginTop: 15,
-        flex: 0.8
+        flex: 1
     },
     heading:{
         alignSelf: "stretch",
