@@ -51,58 +51,8 @@ const CharacterList = ({navigation}) =>{
 
     useEffect(() => {
         dispatch(getCharacters())
-        const filteredData = characters.filter(item => item.name.includes(filter))
-        setData(filteredData)
+        setData(characters)
     }, [dispatch])
-
-    const Character = ({...props}) => {
-        const {name, image, occupation, status, nickname, seasonAppearance, better_call_saul_appearance} = props
-
-        return(
-            <TouchableOpacity onPress={() => {
-                navigation.navigate("Character Info",{
-                    name: props.name,
-                    img: props.image,
-                    occupation: props.occupation,
-                    status: props.status,
-                    nickname: props.nickname,
-                    seasonAppearance: props.seasonAppearance,
-                    better_call_saul_appearance: better_call_saul_appearance
-                });
-            }} style={{width: width, paddingVertical: 8, justifyContent: "flex-start"}}>
-                <HStack space={4}>
-                    <Avatar source={{
-                         uri: image
-                    }}/>
-                    <Text fontSize="md" color={"gray.400"} style={styles.name}>{name}</Text>
-                    <Icon color={"#b6c1ce"} style={{alignSelf: "center"}} as={Feather} name="chevron-right" size="21px"></Icon>
-                </HStack>
-            </TouchableOpacity>
-        )
-    }
-
-    const ITEM_HEIGHT = 50;
-    const getItemLayout = (data, index) => {
-        return{
-            length: ITEM_HEIGHT,
-            offset: ITEM_HEIGHT * data.length,
-            index
-        }
-    }
-
-    const renderItem = useCallback(
-        ({item}) => <View>
-                        <Character 
-                            name={item.name} 
-                            image={item.img} 
-                            occupation={item.occupation} 
-                            status={item.status}
-                            nickname={item.nickname}
-                            seasonAppearance={item.appearance}
-                            better_call_saul_appearance={item.better_call_saul_appearance} />
-                        <Divider backgroundColor={"#e1e6ec"} my="2" style />
-                     </View>, []
-    )
 
     if(status == "loading") return(
         <Box style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
@@ -125,7 +75,7 @@ const CharacterList = ({navigation}) =>{
                             <Icon as={Feather} name="sliders" size="md" color={"white"} />
                         </TouchableOpacity>
                     </HStack>
-                    <FlatListView characters={data}/>
+                    <FlatListView characters={data.length == 0 ? characters : data}/>
                 </Box>
                 <BottomSheet
                         ref={(ref) => (bottomSheetRef.current = ref)}
